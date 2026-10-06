@@ -1,0 +1,281 @@
+digraph Kwikset914_Program {
+    graph [
+        rankdir=TB,
+        #splines=ortho,
+        nodesep=0.50,
+        ranksep=0.65,
+        pad=0.25,
+        bgcolor="white",
+        fontname="Helvetica",
+        label="Kwikset SmartCode 914\nPROGRAM BUTTON\nin MASTER-CODE-PROTECTED mode",
+        labelloc="t",
+        fontsize=18
+    ];
+
+    node [
+        shape=box,
+        style="rounded",
+        fontname="Helvetica",
+        fontsize=11,
+        margin="0.16,0.10"
+    ];
+
+    edge [
+        fontname="Helvetica",
+        fontsize=9,
+        arrowsize=0.7
+    ];
+
+    IDLE [
+        label="IDLE\n\nBolt: LOCKED / UNLOCKED\nBattery: NORMAL / LOW";
+        penwidth=3
+    ];
+    IDLE_GREEN [
+        label="IDLE\n\nStatus LED flickers GREEN"];
+    IDLE -> PRESS_PROGRAM_BUTTON_BRIEFLY;
+    IDLE -> PRESS_PROGRAM_BUTTON_5_SECONDS;
+    IDLE -> IDLE_GREEN [label="every 5 seconds"];
+    IDLE_GREEN -> IDLE;
+
+    {
+        rank=same
+        PRESS_PROGRAM_BUTTON_5_SECONDS [
+            label="PROGRAM\n(inside center)\nBUTTON\npressed\n5-second long"
+            shape=doublecircle
+        ];
+        PRESS_PROGRAM_BUTTON_BRIEFLY [
+            label="PROGRAM\n(inside center)\nBUTTON\npressed\nBRIEFLY"
+            shape=doublecircle
+        ];
+    }
+    PRESS_PROGRAM_BUTTON_5_SECONDS -> PRESS_PROGRAM_BUTTON_BRIEFLY [style="invis"]
+
+    PRESS_PROGRAM_BUTTON_5_SECONDS -> MASTER_PROGRAM_MODE [
+        label="held down more\nthan 5 seconds"];
+    PRESS_PROGRAM_BUTTON_5_SECONDS -> GOTO_UNPROTECTED_USER_PROGRAM_MODE [
+        label="short beep\nshort green keypad LED"
+        ];
+    PRESS_PROGRAM_BUTTON_BRIEFLY -> GOTO_UNPROTECTED_USER_PROGRAM_MODE [
+        label="short beep\nshort green keypad LED"
+        ];
+    PRESS_PROGRAM_BUTTON_BRIEFLY -> PROTECTED_USER_PROGRAM_MODE [
+        label="THREE(3) short beep\n3 short green keypad LED"];
+
+    {
+        rank=same
+        MASTER_PROGRAM_MODE [
+            label="MASTER PROGRAM MODE\n\nInactivity Timer: 5 seconds\n\nReady 4-6 digit\nmaster code"
+            penwidth=3
+        ];
+        GOTO_UNPROTECTED_USER_PROGRAM_MODE [
+            label="No Master Code used\n\nGoto to\nKwikset 914\nPROGRAM BUTTON\nUSER PROGRAM MODE\nsheet"
+            shape=house
+            orientation=180
+            style="sharp"
+            penwidth=3
+        ];
+        PROTECTED_USER_PROGRAM_MODE [
+            label="USER PROGRAM MODE\n(MASTER-PROTECTED)\n\nInactivity Timer: 5 seconds\n\nReady 4-6 digit\nmaster code"
+            penwidth=3
+        ];
+    }
+    MASTER_PROGRAM_MODE -> GOTO_UNPROTECTED_USER_PROGRAM_MODE -> PROTECTED_USER_PROGRAM_MODE [ style="invis" ];
+
+    MASTER_PROGRAM_MODE -> TIMEOUT [
+        label="5 sec.\nexpires"
+    ];
+    MASTER_PROGRAM_MODE -> MASTER_CODE_ACTION
+    PROTECTED_USER_PROGRAM_MODE -> USER_PIN_ACTION
+    PROTECTED_USER_PROGRAM_MODE -> TIMEOUT [
+        label="5 sec.\nexpires"
+    ];
+    {
+        rank=same
+        MASTER_CODE_ACTION [
+            label="What to do\nto MASTER code?"
+            shape=diamond
+        ]
+        TIMEOUT [
+            label="PROGRAM TIMEOUT\n\nKeypad LED: Red\nBeep: short"
+        ];
+        USER_PIN_ACTION [
+            label="What to do\nfor USER PIN?"
+            shape=diamond
+        ]
+    }
+    MASTER_CODE_ACTION -> TIMEOUT -> USER_PIN_ACTION [ style="invis" ]
+    MASTER_CODE_ACTION -> MASTER_DELETE_MODE [ label="Delete\nMaster Code" ];
+    MASTER_CODE_ACTION ->  MASTER_ADD_MODE [ label="Add\nMaster Code" ];
+    TIMEOUT -> IDLE;
+    USER_PIN_ACTION -> PROTECTED_USER_DELETE_MODE
+    USER_PIN_ACTION -> PROTECTED_USER_ADD_MODE
+
+    {
+        rank=same
+        MASTER_DELETE_MODE [ label="DELETE\nMASTER\ncode" penwidth=3];
+        MASTER_ADD_MODE [ label="ADD\nMASTER\ncode" penwidth=3];
+        PROTECTED_USER_DELETE_MODE [ label="DELETE\nUSER PIN" penwidth=3];
+        PROTECTED_USER_ADD_MODE [ label="ADD\nUSER PIN" penwidth=3];
+    }
+    MASTER_DELETE_MODE -> MASTER_ADD_MODE -> PROTECTED_USER_DELETE_MODE -> PROTECTED_USER_ADD_MODE [style="invis"]
+
+    MASTER_ADD_MODE -> MASTER_CODE_KEYPAD_DIGIT_PRESS_1ST [
+        label="Add\nMaster Code"
+    ];
+    MASTER_DELETE_MODE -> MASTER_CODE_KEYPAD_LOCK_PRESS_START [
+       label="Delete\nMaster Code"
+    ];
+
+    PROTECTED_USER_ADD_MODE ->    MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_1ST [
+        label="Add\nUser\nPIN"];
+    PROTECTED_USER_DELETE_MODE -> MASTER_CODE_FOR_USER_PIN_KEYPAD_LOCK_PRESS_BEGIN [label="Delete\nUser\nPIN"];
+
+# show the Lock key row alone (1st digit on next row over)
+    {
+        rank=same
+        MASTER_CODE_KEYPAD_LOCK_PRESS_START [
+            label="Keypad\nLock\npressed"
+            shape=doublecircle];
+        MASTER_CODE_FOR_USER_PIN_KEYPAD_LOCK_PRESS_BEGIN [
+            shape=doublecircle
+            label="Press\nKeypad\nLOCK"];
+        USER_PIN_KEYPAD_LOCK_PRESS_INTERIM [
+            shape=doublecircle
+            label="Press\nKeypad\nLOCK\n(interim)"
+        ];
+    }
+    MASTER_CODE_KEYPAD_LOCK_PRESS_START -> MASTER_CODE_FOR_USER_PIN_KEYPAD_LOCK_PRESS_BEGIN -> USER_PIN_KEYPAD_LOCK_PRESS_INTERIM [ style="invis" ]
+    MASTER_CODE_KEYPAD_DIGIT_PRESS_1ST -> MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_1ST -> USER_PIN_KEYPAD_DIGIT_PRESS_1ST [style="invis"]
+    MASTER_CODE_KEYPAD_LOCK_PRESS_START -> NO_NUMBER_FOUND [
+        label="ERROR\nNo\nNumber\nFound"];
+    MASTER_CODE_KEYPAD_DIGIT_PRESS_1ST -> ALREADY_MASTERED [ label="Master\ncode\nalready\nexist" ];
+    USER_PIN_KEYPAD_LOCK_PRESS_INTERIM -> INVALID_MASTER_CODE [label="Invalid\nMaster\nCode"];
+
+    {
+        rank=same
+        MASTER_CODE_KEYPAD_DIGIT_PRESS_1ST  [
+            shape=doublecircle
+            label="1st\ndigit\nMaster\ncode"
+        ];
+        NO_NUMBER_FOUND [
+            label="11\nshort\nbeep\n&\nRed LED"];
+        ALREADY_MASTERED [
+            label="11\nshort\nbeep\n&\nRed LED"
+        ];
+        USER_PIN_KEYPAD_DIGIT_PRESS_1ST [
+            shape=doublecircle
+            label="1st\ndigit\nUser\nPIN"
+        ]
+        MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_1ST  [
+            shape=doublecircle
+            label="1st\ndigit\nMaster\ncode"
+        ];
+        INVALID_MASTER_CODE [
+       #     label="3\nshort\nbeep\n&\nRed LED"
+        ];
+    }
+    NO_NUMBER_FOUND -> MASTER_CODE_KEYPAD_DIGIT_PRESS_1ST -> ALREADY_MASTERED -> USER_PIN_KEYPAD_DIGIT_PRESS_1ST -> MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_1ST -> INVALID_MASTER_CODE [style="invis"];
+
+    MASTER_CODE_KEYPAD_LOCK_PRESS_START -> MASTER_CODE_KEYPAD_DIGIT_PRESS_1ST
+    MASTER_CODE_FOR_USER_PIN_KEYPAD_LOCK_PRESS_BEGIN -> MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_1ST
+    USER_PIN_KEYPAD_LOCK_PRESS_INTERIM -> USER_PIN_KEYPAD_DIGIT_PRESS_1ST
+
+    # Just the Master code (no User PIN sequence)
+    MASTER_CODE_KEYPAD_DIGIT_PRESS_1ST -> MASTER_CODE_KEYPAD_DIGIT_PRESS_2ND
+    MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_1ST -> MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_2ND
+    USER_PIN_KEYPAD_DIGIT_PRESS_1ST -> USER_PIN_KEYPAD_DIGIT_PRESS_2ND
+
+    {
+        rank=same
+        MASTER_CODE_KEYPAD_DIGIT_PRESS_2ND  [
+            shape=doublecircle
+            label="2nd\ndigit\nMaster"
+        ];
+        MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_2ND  [
+            shape=doublecircle
+            label="2nd\ndigit\nMaster"
+        ];
+        USER_PIN_KEYPAD_DIGIT_PRESS_2ND [
+            shape=doublecircle
+            label="2nd\ndigit\nUser"
+        ]
+    }
+    MASTER_CODE_KEYPAD_DIGIT_PRESS_2ND -> MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_2ND -> USER_PIN_KEYPAD_DIGIT_PRESS_2ND [style="invis"]
+
+    # Just the Master code (no User PIN sequence)
+    MASTER_CODE_KEYPAD_DIGIT_PRESS_2ND -> MASTER_CODE_KEYPAD_DIGIT_PRESS_3RD
+    MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_2ND -> MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_3RD
+    USER_PIN_KEYPAD_DIGIT_PRESS_2ND -> USER_PIN_KEYPAD_DIGIT_PRESS_3RD
+
+    {
+        rank=same
+        MASTER_CODE_KEYPAD_DIGIT_PRESS_3RD  [
+            shape=doublecircle
+            label="3rd\ndigit\nMaster"
+        ];
+        MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_3RD  [
+            shape=doublecircle
+            label="3rd\ndigit\nMaster"
+        ];
+        USER_PIN_KEYPAD_DIGIT_PRESS_3RD [
+            shape=doublecircle
+            label="3rd\ndigit\nUser"
+        ]
+    }
+    MASTER_CODE_KEYPAD_DIGIT_PRESS_3RD -> MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_3RD -> USER_PIN_KEYPAD_DIGIT_PRESS_3RD [style="invis"]
+
+    # Just the Master code (no User PIN sequence)
+    MASTER_CODE_KEYPAD_DIGIT_PRESS_3RD -> MASTER_CODE_KEYPAD_DIGIT_PRESS_4TH
+    MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_3RD -> MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_4TH
+    USER_PIN_KEYPAD_DIGIT_PRESS_3RD -> USER_PIN_KEYPAD_DIGIT_PRESS_4TH
+
+    {
+        rank=same
+        MASTER_CODE_KEYPAD_DIGIT_PRESS_4TH  [
+            shape=doublecircle
+            label="4th\ndigit\nMaster"
+        ];
+        MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_4TH  [
+            shape=doublecircle
+            label="4th\ndigit\nMaster"
+        ];
+        USER_PIN_KEYPAD_DIGIT_PRESS_4TH [
+            shape=doublecircle
+            label="4th\ndigit\nUser"
+        ]
+    }
+    MASTER_CODE_KEYPAD_DIGIT_PRESS_4TH -> MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_4TH -> USER_PIN_KEYPAD_DIGIT_PRESS_4TH [style="invis"]
+
+    # Just the Master code (no User PIN sequence)
+    MASTER_CODE_KEYPAD_DIGIT_PRESS_4TH -> MASTER_CODE_KEYPAD_LOCK_PRESS_FINAL
+    MASTER_CODE_FOR_USER_PIN_KEYPAD_DIGIT_PRESS_4TH -> USER_PIN_KEYPAD_LOCK_PRESS_INTERIM [contraint=false]
+    USER_PIN_KEYPAD_DIGIT_PRESS_4TH -> USER_PIN_KEYPAD_LOCK_PRESS_FINAL
+
+    {
+        rank=same
+        MASTER_CODE_KEYPAD_LOCK_PRESS_FINAL  [
+            shape=doublecircle
+           label="FINAL\nKeypad\nLock\npressed"
+        ];
+        USER_PIN_KEYPAD_LOCK_PRESS_FINAL [
+            shape=doublecircle
+            label="FINAL\nKeypad\nLOCK\npressed"
+        ]
+    }
+    MASTER_CODE_KEYPAD_LOCK_PRESS_FINAL -> USER_PIN_KEYPAD_LOCK_PRESS_FINAL [style="invis"];
+    MASTER_CODE_KEYPAD_LOCK_PRESS_FINAL -> MASTER_CODE_ALREADY_EXISTED [label="User\nPIN\nalready\nexist"];
+    MASTER_CODE_KEYPAD_LOCK_PRESS_FINAL -> ALL_DONE;
+    USER_PIN_KEYPAD_LOCK_PRESS_FINAL -> ALL_DONE
+    USER_PIN_KEYPAD_LOCK_PRESS_FINAL -> USER_PIN_ALREADY_EXISTED
+
+    MASTER_CODE_ALREADY_EXISTED [ label="Master Code\nAlready Exist\n3 long beeps\nFlash Red LED" ]
+    USER_PIN_ALREADY_EXISTED [ label="User PIN\nAlready Exist\n3 long beeps\nFlash Red LED" ]
+
+    ALL_DONE [
+        shape=house
+        label="All\ndone"
+        orientation=180
+        style="sharp"
+        penwidth=3
+    ];
+}

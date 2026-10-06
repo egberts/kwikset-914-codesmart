@@ -1,0 +1,193 @@
+digraph Kwikset914_Program {
+    graph [
+        rankdir=TB,
+        #splines=ortho,
+        nodesep=0.50,
+        ranksep=0.65,
+        pad=0.25,
+        bgcolor="white",
+        fontname="Helvetica",
+        label="Kwikset SmartCode 914\nPROGRAM BUTTON\n(No Master Code Used)",
+        labelloc="t",
+        fontsize=18
+    ];
+
+    node [
+        shape=box,
+        style="rounded",
+        fontname="Helvetica",
+        fontsize=11,
+        margin="0.16,0.10"
+    ];
+
+    edge [
+        fontname="Helvetica",
+        fontsize=9,
+        arrowsize=0.7
+    ];
+
+    IDLE [
+        label="IDLE\n\nBolt: LOCKED / UNLOCKED\nBattery: NORMAL / LOW";
+        penwidth=3
+    ];
+
+    IDLE_GREEN [
+        label="IDLE\n\nStatus LED flickers GREEN"];
+
+    PRESS_PROGRAM_BUTTON [
+        label="PROGRAM\n(inside center)\nBUTTON\npressed"
+        shape=doublecircle
+    ];
+
+    USER_PROGRAM_MODE [
+        label="USER PROGRAM MODE\n\nInactivity Timer: 5 seconds"
+        penwidth=3
+    ];
+
+    MASTER_PROGRAM_MODE [
+        label="MASTER PROGRAM MODE\n\nInactivity Timer: 5 seconds\n\nReady 4-6 digit\nmaster code"
+        penwidth=3
+    ];
+
+    PROTECTED_USER_PROGRAM_MODE [
+        label="USER PROGRAM MODE\nMASTER-PROTECTED\n\nInactivity Timer: 5 seconds\n\nReady 4-6 digit\nmaster code"
+        penwidth=3
+    ];
+
+    USER_PROGRAM_KEYPAD_LOCK_PRESS_INITIAL [
+        shape=doublecircle
+        label="Keypad\nLOCK\npressed"];
+
+
+    USER_PROGRAM_KEYPAD_DIGIT_PRESS_INITIAL [
+        shape=doublecircle
+        label="1st digit\npressed\non Keypad"];
+
+
+    MASTER_PROGRAM_KEYPAD_LOCK_PRESS_INITIAL [
+        shape=doublecircle
+        label="Keypad\nLOCK\npressed"];
+
+
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_INITIAL [
+        shape=doublecircle
+        label="Keypad\n1st digit\npressed"];
+
+    TIMEOUT [
+        label="PROGRAM TIMEOUT\n\nKeypad LED: Red\nBeep: short"
+    ];
+
+
+    USER_ADD_MODE [
+        label="USER ADD MODE\n\nStatus "
+        penwidth=3];
+
+    USER_DELETE_MODE [
+        label="USER DELETE MODE\n\nStatus "
+        penwidth=3];
+
+    MASTER_ADD_MODE [
+        label="MASTER ADD MODE\n\nStatus "
+        penwidth=3];
+
+    MASTER_DELETE_MODE [
+        label="MASTER DELETE MODE\n\nStatus "
+        penwidth=3];
+
+
+    USER_PROGRAM_KEYPAD_DIGIT_PRESS_1ST [
+        shape=doublecircle
+        label="Press\n1st\ndigit"];
+
+    USER_PROGRAM_KEYPAD_DIGIT_PRESS_2ND [
+        shape=doublecircle
+        label="Press\n2nd\ndigit"];
+
+    USER_PROGRAM_KEYPAD_DIGIT_PRESS_3RD [
+        shape=doublecircle
+        label="Press\n3rd\ndigit"];
+
+    USER_PROGRAM_KEYPAD_DIGIT_PRESS_4TH [
+        shape=doublecircle
+        label="Press\n4th\ndigit"];
+
+
+    USER_PROGRAM_MODE -> USER_PROGRAM_KEYPAD_LOCK_PRESS_INITIAL [        shape=circle
+        label="Keypad\nLOCK\npressed"
+    ];
+
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_1ST [shape=circle label="1st digit\npressed"];
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_2ND [shape=circle label="2nd digit\npressed"];
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_3RD [shape=circle label="3rd digit\npressed"];
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_4TH [shape=circle label="4th digit\npressed"];
+    MASTER_PROGRAM_KEYPAD_LOCK_STAGE2 [shape=circle label="Keypad\nLock\npressed"];
+
+
+# arrows
+
+    IDLE -> IDLE_GREEN [label="every 5 seconds"];
+    IDLE_GREEN -> IDLE;
+
+    IDLE -> PRESS_PROGRAM_BUTTON;
+
+    PRESS_PROGRAM_BUTTON -> USER_PROGRAM_MODE [
+        label="short beep\nshort green keypad LED"];
+    PRESS_PROGRAM_BUTTON -> PROTECTED_USER_PROGRAM_MODE [
+        label="THREE(3) short beep\n3 short green keypad LED"];
+
+    PRESS_PROGRAM_BUTTON -> MASTER_PROGRAM_MODE [
+        label="held down more\nthan 5 seconds"];
+
+
+    USER_PROGRAM_MODE -> USER_PROGRAM_KEYPAD_DIGIT_PRESS_INITIAL [
+         shape=circle
+        label="Keypad\ndigit\npressed"
+    ];
+    USER_PROGRAM_MODE -> USER_PROGRAM_KEYPAD_LOCK_PRESS_INITIAL [        shape=circle
+        label="Keypad\nLOCK\npressed"
+    ];
+    USER_PROGRAM_MODE -> TIMEOUT [
+        label="5 sec.\nexpires"
+    ];
+
+
+    MASTER_PROGRAM_MODE -> TIMEOUT [
+        label="5 sec.\nexpires"
+    ];
+    MASTER_PROGRAM_MODE -> MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_INITIAL [
+        shape=circle
+        label="Keypad\ndigit\npressed"
+    ];
+    MASTER_PROGRAM_MODE -> MASTER_PROGRAM_KEYPAD_LOCK_PRESS_INITIAL [
+        shape=circle
+        label="Keypad\nLOCK\npressed"
+    ];
+
+    TIMEOUT -> IDLE;
+
+    PROTECTED_USER_PROGRAM_MODE -> TIMEOUT [
+        label="5 sec.\nexpires"
+    ];
+
+
+    USER_PROGRAM_KEYPAD_DIGIT_PRESS_INITIAL -> USER_ADD_MODE;
+    USER_PROGRAM_KEYPAD_LOCK_PRESS_INITIAL -> USER_DELETE_MODE;
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_INITIAL -> MASTER_ADD_MODE
+    MASTER_PROGRAM_KEYPAD_LOCK_PRESS_INITIAL -> MASTER_DELETE_MODE
+
+    USER_DELETE_MODE -> USER_PROGRAM_KEYPAD_DIGIT_PRESS_1ST;
+    USER_ADD_MODE ->    USER_PROGRAM_KEYPAD_DIGIT_PRESS_2ND;
+    MASTER_DELETE_MODE -> MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_1ST;
+    MASTER_ADD_MODE ->    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_2ND;
+
+    USER_PROGRAM_KEYPAD_DIGIT_PRESS_1ST -> USER_PROGRAM_KEYPAD_DIGIT_PRESS_2ND;
+    USER_PROGRAM_KEYPAD_DIGIT_PRESS_2ND -> USER_PROGRAM_KEYPAD_DIGIT_PRESS_3RD;
+    USER_PROGRAM_KEYPAD_DIGIT_PRESS_3RD -> USER_PROGRAM_KEYPAD_DIGIT_PRESS_4TH;
+
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_1ST -> MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_2ND;
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_2ND -> MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_3RD;
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_3RD -> MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_4TH;
+    MASTER_PROGRAM_KEYPAD_DIGIT_PRESS_4TH -> MASTER_PROGRAM_KEYPAD_LOCK_STAGE2;
+
+
+}
